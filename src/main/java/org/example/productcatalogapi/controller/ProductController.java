@@ -32,25 +32,9 @@ public class ProductController {
       return   productService.createProduct(product);
     }
 
-    @PutMapping
-    public void updateProduct(@RequestBody Product product) {
-        Product oldProduct = productService.getProductById(product.getId());
-        if(product.getName() != null) {
-            oldProduct.setName(product.getName());
-        }
-        if(product.getDescription() != null) {
-            oldProduct.setDescription(product.getDescription());
-        }
-        if(product.getPrice() != null) {
-            oldProduct.setPrice(product.getPrice());
-        }
-        if(product.getCategory() != null) {
-            oldProduct.setCategory(product.getCategory());
-        }
-        if (product.getSku() != null) {
-            oldProduct.setSku(product.getSku());
-        }
-        productService.createProduct(oldProduct);
+    @PutMapping("/product/{id}")
+    public void updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        productService.updateProduct(id,product);
     }
 
     @DeleteMapping
