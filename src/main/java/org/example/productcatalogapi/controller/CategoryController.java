@@ -1,8 +1,13 @@
 package org.example.productcatalogapi.controller;
 
+import org.example.productcatalogapi.dto.PaginatedResponse;
 import org.example.productcatalogapi.model.Category;
 import org.example.productcatalogapi.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +19,29 @@ public class CategoryController {
     @Autowired
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<PaginatedResponse<Category>> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page must be non-negative and size must be positive.");
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Category> categoryPage = categoryService.getAllCategories(pageable);
+        PaginatedResponse.PaginationMetadata metadata = new PaginatedResponse.PaginationMetadata(
+                categoryPage.getTotalElements(),
+                categoryPage.getNumber(),
+                categoryPage.getSize(),
+                categoryPage.getTotalPages()
+        );
+        PaginatedResponse<Category> response = new PaginatedResponse<>(
+                categoryPage.getContent(),
+                metadata
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/category")

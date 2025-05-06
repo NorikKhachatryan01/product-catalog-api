@@ -1,8 +1,13 @@
 package org.example.productcatalogapi.controller;
 
+import org.example.productcatalogapi.dto.PaginatedResponse;
 import org.example.productcatalogapi.model.Product;
 import org.example.productcatalogapi.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +20,31 @@ public class ProductController {
     @Autowired
     public ProductController(ProductService productService) {
         this.productService = productService;
+    }
+
+
+    @GetMapping("/products")
+    public ResponseEntity<PaginatedResponse<Product>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page must be non-negative and size must be positive.");
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productService.getAllProducts(pageable);
+        PaginatedResponse.PaginationMetadata metadata = new PaginatedResponse.PaginationMetadata(
+                productPage.getTotalElements(),
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalPages()
+        );
+
+        PaginatedResponse<Product> response = new PaginatedResponse<>(
+                productPage.getContent(),
+                metadata
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/product")

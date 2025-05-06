@@ -5,6 +5,8 @@ import org.example.productcatalogapi.model.Category;
 import org.example.productcatalogapi.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,8 +23,16 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    public Page<Category> findAll(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
+    }
+
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    public Page<Category> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     public Category getCategoryById(Long id) {
